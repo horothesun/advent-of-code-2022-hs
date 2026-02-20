@@ -1,5 +1,7 @@
 # Advent of Code 2022
 
+[![Compile and run tests](https://github.com/horothesun/advent-of-code-2022-hs/actions/workflows/ci.yml/badge.svg)](https://github.com/horothesun/advent-of-code-2022-hs/actions/workflows/ci.yml)
+
 ## How to build and run locally
 
 The project uses the [Haskell tool stack](https://docs.haskellstack.org/en/stable/README/). The recommended way to install stack is by using [ghcup](https://www.haskell.org/ghcup/).
