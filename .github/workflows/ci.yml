@@ -2,10 +2,9 @@ name: Compile and run tests
 
 on:
   push:
-    branches: [ main, feature/** ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch: # enable manual execution
+    branches: [ master ]
 
 concurrency:
   group: ${{ github.ref }}
@@ -18,49 +17,50 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        stack: ["3.7.1"]
-        ghc: ["9.10.3"]
+        os: [ ubuntu-latest ]
+        stack: [ "3.7.1" ]
+        ghc: [ "9.10.3" ]
 
     steps:
 
-    - name: Checkout repo
-      uses: actions/checkout@v6
+      - name: Checkout repo
+        uses: actions/checkout@v6
 
-    - name: Cache stack installation
-      uses: actions/cache@v5
-      with:
-        path: |
-          ~/.stack/build-plan
-          ~/.stack/indices
-          ~/.stack/snapshots
-          ~/.stack/global-project/.stack-work/install
-        key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-stack-${{ matrix.stack }}-${{ hashFiles('stack.yaml', 'stack.yaml.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-ghc-${{ matrix.ghc }}-stack-${{ matrix.stack }}-
+      - name: Cache stack installation
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.stack/build-plan
+            ~/.stack/indices
+            ~/.stack/snapshots
+            ~/.stack/global-project/.stack-work/install
+          key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-stack-${{ matrix.stack }}-${{ hashFiles('stack.yaml', 'stack.yaml.lock') }}
+          restore-keys: ${{ runner.os }}-ghc-${{ matrix.ghc }}-stack-${{ matrix.stack }}-
 
-    - name: Cache GHC installation
-      uses: actions/cache@v5
-      with:
-        path: |
-          ~/.ghcup/ghc/${{ matrix.ghc }}
-          ~/.ghcup/bin/stack-${{ matrix.stack }}
-        key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-stack-${{ matrix.stack }}
+      - name: Cache GHC installation
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.ghcup/ghc/${{ matrix.ghc }}
+            ~/.ghcup/bin/stack-${{ matrix.stack }}
+          key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-stack-${{ matrix.stack }}
 
-    - name: Setup Haskell Stack
-      uses: haskell-actions/setup@v2
-      with:
-        ghc-version: ${{ matrix.ghc }}
-        stack-version: ${{ matrix.stack }}
-        enable-stack: true
+      - name: Setup Haskell Stack
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          stack-version: ${{ matrix.stack }}
+          enable-stack: true
 
-    - name: Install dependencies
-      if: steps.cache.outputs.cache-hit != 'true' && success()
-      timeout-minutes: 15
-      run: |
-        stack build --system-ghc --test --no-run-tests --only-dependencies
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true' && success()
+        timeout-minutes: 15
+        run: stack build --system-ghc --test --no-run-tests --only-dependencies
 
-    - name: Build
-      timeout-minutes: 15
-      run: |
-        stack build --system-ghc --test --no-run-tests
+      - name: Build
+        timeout-minutes: 15
+        run: stack build --system-ghc --test --no-run-tests
+
+      - name: Run tests
+        timeout-minutes: 15
+        run: stack test --system-ghc --test --fast
