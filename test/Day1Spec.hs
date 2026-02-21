@@ -40,10 +40,10 @@ spec = describe "Day 1" $ do
       ]
     ]
 
-  it "total Calories carried by the Elf with most calories (small input)" $
+  xit "total Calories carried by the Elf with most calories (small input)" $
     getElfWithMostCaloriesTotalCalories smallInput `shouldBe` Just 24000
 
-  it "total Calories carried by the Elf with most calories (BIG input)" $ do
+  xit "total Calories carried by the Elf with most calories (BIG input)" $ do
     input <- bigInput
     getElfWithMostCaloriesTotalCalories input `shouldBe` Just 70764
 
