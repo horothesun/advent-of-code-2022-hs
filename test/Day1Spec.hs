@@ -1,21 +1,16 @@
 module Day1Spec where
 
 import Day1
+import FileLoader
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
-import qualified Data.Text as T
-import qualified Data.Text.IO as T
 
 spec :: Spec
 spec = describe "Day 1" $ do
-  it ""
-    $ 1
-    `shouldBe` 1
+  prop "" $
+    \l -> reverse (reverse l) == (l :: [Int])
 
-  prop ""
-    $ \l -> reverse (reverse l) == (l :: [Int])
-
-  xit "solve the puzzle" $ do
-     input <- T.readFile "resources/input1"
-     logic input `shouldBe` Answer
+  it "load big input from file" $ do
+    input <- getLinesFromFile "test/day1_input.txt"
+    length input `shouldBe` 2223
