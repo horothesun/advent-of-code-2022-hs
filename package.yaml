@@ -75,19 +75,19 @@ tests:
     build-tools:
     - hspec-discover
 
-benchmarks:
-  aoc22-benchmarks:
-    main: Main.hs
-    source-dirs: benchmarks
-    ghc-options:
-      - -O2
-      - -threaded
-      - -rtsopts
-      - -with-rtsopts=-s
-    dependencies:
-      - aoc22
-      - base
-      - criterion
+# benchmarks:
+#   aoc22-benchmarks:
+#     main: Main.hs
+#     source-dirs: benchmarks
+#     ghc-options:
+#       - -O2
+#       - -threaded
+#       - -rtsopts
+#       - -with-rtsopts=-s
+#     dependencies:
+#       - aoc22
+#       - base
+#       - criterion
 
 verbatim:
   cabal-version: 3.0

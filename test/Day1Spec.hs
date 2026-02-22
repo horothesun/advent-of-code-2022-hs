@@ -17,28 +17,29 @@ spec = describe "Day 1" $ do
     length input `shouldBe` 2223
 
   it "parse small input" $
-    parseElfPacks smallInput `shouldBe` Just [
-      ElfPack [
-        FoodItem $ Calories 1000,
-        FoodItem $ Calories 2000,
-        FoodItem $ Calories 3000
-      ],
-      ElfPack [
-        FoodItem $ Calories 4000
-      ],
-      ElfPack [
-        FoodItem $ Calories 5000,
-        FoodItem $ Calories 6000
-      ],
-      ElfPack [
-        FoodItem $ Calories 7000,
-        FoodItem $ Calories 8000,
-        FoodItem $ Calories 9000
-      ],
-      ElfPack [
-        FoodItem $ Calories 10000
-      ]
-    ]
+    parseElfPacks smallInput
+      `shouldBe` Just
+        [ ElfPack
+            [ FoodItem $ Calories 1000
+            , FoodItem $ Calories 2000
+            , FoodItem $ Calories 3000
+            ]
+        , ElfPack
+            [ FoodItem $ Calories 4000
+            ]
+        , ElfPack
+            [ FoodItem $ Calories 5000
+            , FoodItem $ Calories 6000
+            ]
+        , ElfPack
+            [ FoodItem $ Calories 7000
+            , FoodItem $ Calories 8000
+            , FoodItem $ Calories 9000
+            ]
+        , ElfPack
+            [ FoodItem $ Calories 10000
+            ]
+        ]
 
   xit "total Calories carried by the Elf with most calories (small input)" $
     getElfWithMostCaloriesTotalCalories smallInput `shouldBe` Just 24000
