@@ -20,10 +20,13 @@ totalCalories (ElfPack foodItems) = getSum $ foldMap getCalories foodItems
   getCalories (FoodItem (Calories c)) = Sum c
 
 getElfWithMostCaloriesTotalCalories :: [T.Text] -> Maybe Int
-getElfWithMostCaloriesTotalCalories input = aux <$> parseElfPacks input
+getElfWithMostCaloriesTotalCalories input = maximum . fmap totalCalories <$> parseElfPacks input
+
+getTop3ElvesWithMostCaloriesTotalCalories :: [T.Text] -> Maybe Int
+getTop3ElvesWithMostCaloriesTotalCalories input = aux <$> parseElfPacks input
  where
   aux :: [ElfPack] -> Int
-  aux eps = sum $ take 3 $ sortBy (comparing Data.Ord.Down) (totalCalories <$> eps)
+  aux = sum . take 3 . sortBy (comparing Data.Ord.Down) . fmap totalCalories
 
 parseFoodItem :: T.Text -> Maybe FoodItem
 parseFoodItem t = case TR.decimal t of

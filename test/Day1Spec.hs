@@ -7,8 +7,6 @@ import Day1
 import FileLoader
 import NeatInterpolation (trimming)
 import Test.Hspec
-import Test.Hspec.QuickCheck
-import Test.QuickCheck
 
 spec :: Spec
 spec = describe "Day 1" $ do
@@ -41,12 +39,19 @@ spec = describe "Day 1" $ do
             ]
         ]
 
-  xit "total Calories carried by the Elf with most calories (small input)" $
+  it "total Calories carried by the Elf with most calories (small input)" $
     getElfWithMostCaloriesTotalCalories smallInput `shouldBe` Just 24000
 
-  xit "total Calories carried by the Elf with most calories (BIG input)" $ do
+  it "total Calories carried by the Elf with most calories (BIG input)" $ do
     input <- bigInput
     getElfWithMostCaloriesTotalCalories input `shouldBe` Just 70764
+
+  it "total Calories carried by top 3 Elves with most calories (small input)" $
+    getTop3ElvesWithMostCaloriesTotalCalories smallInput `shouldBe` Just 45000
+
+  it "total Calories carried by top 3 Elves with most calories (BIG input)" $ do
+    input <- bigInput
+    getTop3ElvesWithMostCaloriesTotalCalories input `shouldBe` Just 203905
 
 bigInput :: IO [T.Text]
 bigInput = getLinesFromFile "test/day1_input.txt"
