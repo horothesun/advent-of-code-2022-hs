@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DerivingVia #-}
 
 module Day1 where
 
@@ -9,23 +9,26 @@ import Data.Semigroup (Sum (..))
 import qualified Data.Text as T
 import qualified Data.Text.Read as TR
 
-newtype Calories = Calories Int deriving (Eq, Show)
+newtype Calories = Calories Int
+  deriving (Eq, Show, Num, Ord) via Int
+  deriving (Semigroup, Monoid) via (Sum Int)
+
 newtype FoodItem = FoodItem Calories deriving (Eq, Show)
 newtype ElfPack = ElfPack [FoodItem] deriving (Eq, Show)
 
-totalCalories :: ElfPack -> Int
-totalCalories (ElfPack foodItems) = getSum $ foldMap getCalories foodItems
- where
-  getCalories :: FoodItem -> Sum Int
-  getCalories (FoodItem (Calories c)) = Sum c
+foodItemCalories :: FoodItem -> Calories
+foodItemCalories (FoodItem c) = c
 
-getElfWithMostCaloriesTotalCalories :: [T.Text] -> Maybe Int
+totalCalories :: ElfPack -> Calories
+totalCalories (ElfPack foodItems) = foldMap foodItemCalories foodItems
+
+getElfWithMostCaloriesTotalCalories :: [T.Text] -> Maybe Calories
 getElfWithMostCaloriesTotalCalories input = maximum . fmap totalCalories <$> parseElfPacks input
 
-getTop3ElvesWithMostCaloriesTotalCalories :: [T.Text] -> Maybe Int
+getTop3ElvesWithMostCaloriesTotalCalories :: [T.Text] -> Maybe Calories
 getTop3ElvesWithMostCaloriesTotalCalories input = aux <$> parseElfPacks input
  where
-  aux :: [ElfPack] -> Int
+  aux :: [ElfPack] -> Calories
   aux = sum . take 3 . sortBy (comparing Data.Ord.Down) . fmap totalCalories
 
 parseFoodItem :: T.Text -> Maybe FoodItem

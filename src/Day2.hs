@@ -30,8 +30,8 @@ rawScore s = case s of
   Paper -> 2
   Scissors -> 3
 
-roundOutcomeMe :: RoundOutcome -> MyScore
-roundOutcomeMe (RoundOutcome _ me _) = me
+roundOutcomeMyScore :: RoundOutcome -> MyScore
+roundOutcomeMyScore (RoundOutcome _ me _) = me
 
 roundFromPlan :: RoundPlan -> Round
 roundFromPlan (RoundPlan o@(OpponentShape opponent) desiredWinner) = Round me o
@@ -72,11 +72,11 @@ getRoundOutcome (Round (MyShape m) (OpponentShape o)) =
     (Scissors, Rock) -> loss
 
 getMyTotalScore :: [T.Text] -> Maybe MyScore
-getMyTotalScore input = foldMap (roundOutcomeMe . getRoundOutcome) <$> parseMatch input
+getMyTotalScore input = foldMap (roundOutcomeMyScore . getRoundOutcome) <$> parseMatch input
 
 getMyPlannedTotalScore :: [T.Text] -> Maybe MyScore
 getMyPlannedTotalScore input =
-  foldMap (roundOutcomeMe . getRoundOutcome . roundFromPlan) <$> parsePlannedMatch input
+  foldMap (roundOutcomeMyScore . getRoundOutcome . roundFromPlan) <$> parsePlannedMatch input
 
 parseMatch :: [T.Text] -> Maybe [Round]
 parseMatch = traverse parseRound

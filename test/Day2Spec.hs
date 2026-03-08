@@ -20,11 +20,11 @@ spec = describe "Day 2" $ do
 
   it "get my total score (BIG input)" $ do
     input <- bigInput
-    getMyTotalScore input `shouldBe` Just (MyScore 12586)
+    getMyTotalScore input `shouldBe` Just 12586
 
   it "get my planned total score (BIG input)" $ do
     input <- bigInput
-    getMyPlannedTotalScore input `shouldBe` Just (MyScore 13193)
+    getMyPlannedTotalScore input `shouldBe` Just 13193
 
 bigInput :: IO [T.Text]
 bigInput = getLinesFromFile "test/day2_input.txt"
