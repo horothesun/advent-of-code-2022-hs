@@ -1,38 +1,31 @@
+{-# LANGUAGE DerivingVia #-}
+
 module Day2 where
 
 import Data.Semigroup (Sum (..))
 import qualified Data.Text as T
 
-newtype Score = Score Int deriving (Eq, Show)
+newtype Score = Score Int
+  deriving (Eq, Show, Num) via Int
+  deriving (Semigroup, Monoid) via (Sum Int)
+newtype MyScore = MyScore Score
+  deriving (Eq, Show, Num) via Int
+  deriving (Semigroup, Monoid) via (Sum Int)
+newtype OpponentScore = OpponentScore Score
+  deriving (Eq, Show, Num) via Int
+  deriving (Semigroup, Monoid) via (Sum Int)
 
 data Shape = Rock | Paper | Scissors deriving (Eq, Show)
 
-data Round = Round
-  { roundMe :: Shape
-  , roundOpponent :: Shape
-  }
-  deriving (Eq, Show)
+data Round = Round MyShape OpponentShape deriving (Eq, Show)
+newtype MyShape = MyShape Shape deriving (Eq, Show)
+newtype OpponentShape = OpponentShape Shape deriving (Eq, Show)
 
 data Winner = Me | Opponent | Draw deriving (Eq, Show)
 
-data RoundOutcome = RoundOutcome
-  { roundOutcomeWinner :: Winner
-  , roundOutcomeMe :: Score
-  , roundOutcomeOpponent :: Score
-  }
-  deriving (Eq, Show)
+data RoundOutcome = RoundOutcome Winner MyScore OpponentScore deriving (Eq, Show)
 
-data RoundPlan = RoundPlan
-  { roundPlanOpponent :: Shape
-  , roundPlanDesiredWinner :: Winner
-  }
-  deriving (Eq, Show)
-
-addScores :: Score -> Score -> Score
-addScores (Score l) (Score r) = Score (l + r)
-
-scoreSum :: Score -> Sum Int
-scoreSum (Score s) = Sum s
+data RoundPlan = RoundPlan OpponentShape Winner deriving (Eq, Show)
 
 score :: Shape -> Score
 score s = Score $ case s of
@@ -41,17 +34,12 @@ score s = Score $ case s of
   Scissors -> 3
 
 roundFromPlan :: RoundPlan -> Round
-roundFromPlan
-  ( RoundPlan
-      { roundPlanOpponent = opponent
-      , roundPlanDesiredWinner = desiredWinner
-      }
-    ) = Round{roundMe = me, roundOpponent = opponent}
-   where
-    me = case desiredWinner of
-      Me -> winningShapeAgainst opponent
-      Opponent -> losingShapeAgainst opponent
-      Draw -> opponent
+roundFromPlan (RoundPlan o@(OpponentShape opponent) desiredWinner) = Round me o
+ where
+  me = MyShape $ case desiredWinner of
+    Me -> winningShapeAgainst opponent
+    Opponent -> losingShapeAgainst opponent
+    Draw -> opponent
 
 winningShapeAgainst :: Shape -> Shape
 winningShapeAgainst opponent = case opponent of
@@ -66,17 +54,13 @@ losingShapeAgainst opponent = case opponent of
   Scissors -> Paper
 
 getRoundOutcome :: Round -> RoundOutcome
-getRoundOutcome r =
-  RoundOutcome
-    { roundOutcomeWinner = winner
-    , roundOutcomeMe = addScores me $ score (roundMe r)
-    , roundOutcomeOpponent = addScores opponent $ score (roundOpponent r)
-    }
+getRoundOutcome (Round (MyShape m) (OpponentShape o)) =
+  RoundOutcome winner (MyScore $ me + score m) (OpponentScore $ opponent + score o)
  where
   win = (Me, Score 6, Score 0)
   draw = (Draw, Score 3, Score 3)
   loss = (Opponent, Score 0, Score 6)
-  (winner, me, opponent) = case (roundMe r, roundOpponent r) of
+  (winner, me, opponent) = case (m, o) of
     (Rock, Scissors) -> win
     (Scissors, Paper) -> win
     (Paper, Rock) -> win
@@ -87,15 +71,16 @@ getRoundOutcome r =
     (Paper, Scissors) -> loss
     (Scissors, Rock) -> loss
 
-getMyTotalScore :: [T.Text] -> Maybe Score
-getMyTotalScore input =
-  (Score . getSum . foldMap scoreSum) . fmap (roundOutcomeMe . getRoundOutcome) <$> parseMatch input
+getMyTotalScore :: [T.Text] -> Maybe MyScore
+getMyTotalScore input = foldMap (roundOutcomeMe . getRoundOutcome) <$> parseMatch input
+ where
+  roundOutcomeMe (RoundOutcome _ me _) = me
 
-getMyPlannedTotalScore :: [T.Text] -> Maybe Score
+getMyPlannedTotalScore :: [T.Text] -> Maybe MyScore
 getMyPlannedTotalScore input =
-  (Score . getSum . foldMap scoreSum)
-    . fmap (roundOutcomeMe . getRoundOutcome . roundFromPlan)
-    <$> parsePlannedMatch input
+  foldMap (roundOutcomeMe . getRoundOutcome . roundFromPlan) <$> parsePlannedMatch input
+ where
+  roundOutcomeMe (RoundOutcome _ me _) = me
 
 parseMatch :: [T.Text] -> Maybe [Round]
 parseMatch = traverse parseRound
@@ -105,27 +90,27 @@ parsePlannedMatch = traverse parseRoundPlan
 
 parseRound :: T.Text -> Maybe Round
 parseRound s = case fmap T.unpack (T.splitOn " " s) of
-  -- TODO: applicative + record notation! 🔥🔥🔥
   [[o], [m]] -> Round <$> parseMyShape m <*> parseOpponentShape o
   _ -> Nothing
 
-parseMyShape :: Char -> Maybe Shape
-parseMyShape c = case c of
-  'X' -> Just Rock
-  'Y' -> Just Paper
-  'Z' -> Just Scissors
-  _ -> Nothing
+parseMyShape :: Char -> Maybe MyShape
+parseMyShape c =
+  MyShape <$> case c of
+    'X' -> Just Rock
+    'Y' -> Just Paper
+    'Z' -> Just Scissors
+    _ -> Nothing
 
-parseOpponentShape :: Char -> Maybe Shape
-parseOpponentShape c = case c of
-  'A' -> Just Rock
-  'B' -> Just Paper
-  'C' -> Just Scissors
-  _ -> Nothing
+parseOpponentShape :: Char -> Maybe OpponentShape
+parseOpponentShape c =
+  OpponentShape <$> case c of
+    'A' -> Just Rock
+    'B' -> Just Paper
+    'C' -> Just Scissors
+    _ -> Nothing
 
 parseRoundPlan :: T.Text -> Maybe RoundPlan
 parseRoundPlan s = case fmap T.unpack (T.splitOn " " s) of
-  -- TODO: applicative + record notation! 🔥🔥🔥
   [[o], [dw]] -> RoundPlan <$> parseOpponentShape o <*> parseDesiredWinner dw
   _ -> Nothing
 

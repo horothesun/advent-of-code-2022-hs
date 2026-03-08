@@ -12,19 +12,19 @@ spec = describe "Day 2" $ do
     length input `shouldBe` 2500
 
   it "parse round" $
-    parseRound "A Y" `shouldBe` Just Round{roundMe = Paper, roundOpponent = Rock}
+    parseRound "A Y" `shouldBe` Just (Round (MyShape Paper) (OpponentShape Rock))
 
   it "get round outcome" $
-    getRoundOutcome Round{roundMe = Paper, roundOpponent = Rock}
-      `shouldBe` RoundOutcome{roundOutcomeWinner = Me, roundOutcomeMe = Score 8, roundOutcomeOpponent = Score 1}
+    getRoundOutcome (Round (MyShape Paper) (OpponentShape Rock))
+      `shouldBe` RoundOutcome Me (MyScore $ Score 8) (OpponentScore $ Score 1)
 
   it "get my total score (BIG input)" $ do
     input <- bigInput
-    getMyTotalScore input `shouldBe` Just (Score 12586)
+    getMyTotalScore input `shouldBe` Just (MyScore $ Score 12586)
 
   it "get my planned total score (BIG input)" $ do
     input <- bigInput
-    getMyPlannedTotalScore input `shouldBe` Just (Score 13193)
+    getMyPlannedTotalScore input `shouldBe` Just (MyScore $ Score 13193)
 
 bigInput :: IO [T.Text]
 bigInput = getLinesFromFile "test/day2_input.txt"
