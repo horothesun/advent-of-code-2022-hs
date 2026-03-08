@@ -16,15 +16,15 @@ spec = describe "Day 2" $ do
 
   it "get round outcome" $
     getRoundOutcome (Round (MyShape Paper) (OpponentShape Rock))
-      `shouldBe` RoundOutcome Me (MyScore $ Score 8) (OpponentScore $ Score 1)
+      `shouldBe` RoundOutcome Me (MyScore 8) (OpponentScore 1)
 
   it "get my total score (BIG input)" $ do
     input <- bigInput
-    getMyTotalScore input `shouldBe` Just (MyScore $ Score 12586)
+    getMyTotalScore input `shouldBe` Just (MyScore 12586)
 
   it "get my planned total score (BIG input)" $ do
     input <- bigInput
-    getMyPlannedTotalScore input `shouldBe` Just (MyScore $ Score 13193)
+    getMyPlannedTotalScore input `shouldBe` Just (MyScore 13193)
 
 bigInput :: IO [T.Text]
 bigInput = getLinesFromFile "test/day2_input.txt"

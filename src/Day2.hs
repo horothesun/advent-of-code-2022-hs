@@ -5,13 +5,10 @@ module Day2 where
 import Data.Semigroup (Sum (..))
 import qualified Data.Text as T
 
-newtype Score = Score Int
+newtype MyScore = MyScore Int
   deriving (Eq, Show, Num) via Int
   deriving (Semigroup, Monoid) via (Sum Int)
-newtype MyScore = MyScore Score
-  deriving (Eq, Show, Num) via Int
-  deriving (Semigroup, Monoid) via (Sum Int)
-newtype OpponentScore = OpponentScore Score
+newtype OpponentScore = OpponentScore Int
   deriving (Eq, Show, Num) via Int
   deriving (Semigroup, Monoid) via (Sum Int)
 
@@ -27,11 +24,14 @@ data RoundOutcome = RoundOutcome Winner MyScore OpponentScore deriving (Eq, Show
 
 data RoundPlan = RoundPlan OpponentShape Winner deriving (Eq, Show)
 
-score :: Shape -> Score
-score s = Score $ case s of
+rawScore :: Shape -> Int
+rawScore s = case s of
   Rock -> 1
   Paper -> 2
   Scissors -> 3
+
+roundOutcomeMe :: RoundOutcome -> MyScore
+roundOutcomeMe (RoundOutcome _ me _) = me
 
 roundFromPlan :: RoundPlan -> Round
 roundFromPlan (RoundPlan o@(OpponentShape opponent) desiredWinner) = Round me o
@@ -55,11 +55,11 @@ losingShapeAgainst opponent = case opponent of
 
 getRoundOutcome :: Round -> RoundOutcome
 getRoundOutcome (Round (MyShape m) (OpponentShape o)) =
-  RoundOutcome winner (MyScore $ me + score m) (OpponentScore $ opponent + score o)
+  RoundOutcome winner (me + MyScore (rawScore m)) (opponent + OpponentScore (rawScore o))
  where
-  win = (Me, Score 6, Score 0)
-  draw = (Draw, Score 3, Score 3)
-  loss = (Opponent, Score 0, Score 6)
+  win = (Me, MyScore 6, OpponentScore 0)
+  draw = (Draw, MyScore 3, OpponentScore 3)
+  loss = (Opponent, MyScore 0, OpponentScore 6)
   (winner, me, opponent) = case (m, o) of
     (Rock, Scissors) -> win
     (Scissors, Paper) -> win
@@ -73,14 +73,10 @@ getRoundOutcome (Round (MyShape m) (OpponentShape o)) =
 
 getMyTotalScore :: [T.Text] -> Maybe MyScore
 getMyTotalScore input = foldMap (roundOutcomeMe . getRoundOutcome) <$> parseMatch input
- where
-  roundOutcomeMe (RoundOutcome _ me _) = me
 
 getMyPlannedTotalScore :: [T.Text] -> Maybe MyScore
 getMyPlannedTotalScore input =
   foldMap (roundOutcomeMe . getRoundOutcome . roundFromPlan) <$> parsePlannedMatch input
- where
-  roundOutcomeMe (RoundOutcome _ me _) = me
 
 parseMatch :: [T.Text] -> Maybe [Round]
 parseMatch = traverse parseRound
