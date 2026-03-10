@@ -32,4 +32,32 @@ spec = describe "Day 3" $ do
 
   it "parseRucksack \"abcDEF\" returns a valid Rucksack" $
     parseRucksack "abcDEF"
-      `shouldBe` Just (Rucksack (Item 'a' :| [Item 'b', Item 'c']) (Item 'D' :| [Item 'E', Item 'F']))
+      `shouldBe` Just
+        ( Rucksack
+            (Item 'a' :| [Item 'b', Item 'c'])
+            (Item 'D' :| [Item 'E', Item 'F'])
+        )
+
+  it "Rucksack repeatedItemsBetweenCompartments with NO repeated" $
+    repeatedItemsBetweenCompartments
+      ( Rucksack
+          (Item 'a' :| [Item 'b', Item 'c'])
+          (Item 'D' :| [Item 'A', Item 'F'])
+      )
+      `shouldBe` []
+
+  it "Rucksack repeatedItemsBetweenCompartments with 1 repeated" $
+    repeatedItemsBetweenCompartments
+      ( Rucksack
+          (Item 'a' :| [Item 'b', Item 'c'])
+          (Item 'D' :| [Item 'a', Item 'F'])
+      )
+      `shouldBe` [Item 'a']
+
+  it "Rucksack repeatedItemsBetweenCompartments with 2 repeated" $
+    repeatedItemsBetweenCompartments
+      ( Rucksack
+          (Item 'a' :| [Item 'b', Item 'c'])
+          (Item 'c' :| [Item 'C', Item 'a'])
+      )
+      `shouldBe` [Item 'a', Item 'c']
