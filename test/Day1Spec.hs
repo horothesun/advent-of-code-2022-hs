@@ -2,6 +2,7 @@
 
 module Day1Spec where
 
+import Data.Text (Text)
 import qualified Data.Text as T
 import Day1
 import FileLoader
@@ -10,9 +11,10 @@ import Test.Hspec
 
 spec :: Spec
 spec = describe "Day 1" $ do
-  it "load big input from file" $ do
-    input <- bigInput
-    length input `shouldBe` 2223
+  bigInput <- runIO $ getLinesFromFile "test/day1_input.txt"
+
+  it "load big input from file" $
+    length bigInput `shouldBe` 2223
 
   it "parse small input" $
     parseElfPacks smallInput
@@ -42,21 +44,16 @@ spec = describe "Day 1" $ do
   it "total Calories carried by the Elf with most calories (small input)" $
     getElfWithMostCaloriesTotalCalories smallInput `shouldBe` Just 24000
 
-  it "total Calories carried by the Elf with most calories (BIG input)" $ do
-    input <- bigInput
-    getElfWithMostCaloriesTotalCalories input `shouldBe` Just 70764
+  it "total Calories carried by the Elf with most calories (BIG input)" $
+    getElfWithMostCaloriesTotalCalories bigInput `shouldBe` Just 70764
 
   it "total Calories carried by top 3 Elves with most calories (small input)" $
     getTop3ElvesWithMostCaloriesTotalCalories smallInput `shouldBe` Just 45000
 
-  it "total Calories carried by top 3 Elves with most calories (BIG input)" $ do
-    input <- bigInput
-    getTop3ElvesWithMostCaloriesTotalCalories input `shouldBe` Just 203905
+  it "total Calories carried by top 3 Elves with most calories (BIG input)" $
+    getTop3ElvesWithMostCaloriesTotalCalories bigInput `shouldBe` Just 203905
 
-bigInput :: IO [T.Text]
-bigInput = getLinesFromFile "test/day1_input.txt"
-
-smallInput :: [T.Text]
+smallInput :: [Text]
 smallInput =
   T.splitOn
     "\n"

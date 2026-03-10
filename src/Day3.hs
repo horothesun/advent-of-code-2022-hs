@@ -4,6 +4,7 @@ module Day3 where
 
 import Data.List (intersect)
 import Data.List.NonEmpty (NonEmpty, append, toList)
+import Data.Text (Text)
 import qualified Data.Text as T
 
 newtype Item = Item Char deriving (Eq, Show)

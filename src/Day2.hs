@@ -3,6 +3,7 @@
 module Day2 where
 
 import Data.Semigroup (Sum (..))
+import Data.Text (Text)
 import qualified Data.Text as T
 
 newtype MyScore = MyScore Int
@@ -71,20 +72,20 @@ getRoundOutcome (Round (MyShape m) (OpponentShape o)) =
     (Paper, Scissors) -> loss
     (Scissors, Rock) -> loss
 
-getMyTotalScore :: [T.Text] -> Maybe MyScore
+getMyTotalScore :: [Text] -> Maybe MyScore
 getMyTotalScore input = foldMap (roundOutcomeMyScore . getRoundOutcome) <$> parseMatch input
 
-getMyPlannedTotalScore :: [T.Text] -> Maybe MyScore
+getMyPlannedTotalScore :: [Text] -> Maybe MyScore
 getMyPlannedTotalScore input =
   foldMap (roundOutcomeMyScore . getRoundOutcome . roundFromPlan) <$> parsePlannedMatch input
 
-parseMatch :: [T.Text] -> Maybe [Round]
+parseMatch :: [Text] -> Maybe [Round]
 parseMatch = traverse parseRound
 
-parsePlannedMatch :: [T.Text] -> Maybe [RoundPlan]
+parsePlannedMatch :: [Text] -> Maybe [RoundPlan]
 parsePlannedMatch = traverse parseRoundPlan
 
-parseRound :: T.Text -> Maybe Round
+parseRound :: Text -> Maybe Round
 parseRound s = case fmap T.unpack (T.splitOn " " s) of
   [[o], [m]] -> Round <$> parseMyShape m <*> parseOpponentShape o
   _ -> Nothing
@@ -105,7 +106,7 @@ parseOpponentShape c =
     'C' -> Just Scissors
     _ -> Nothing
 
-parseRoundPlan :: T.Text -> Maybe RoundPlan
+parseRoundPlan :: Text -> Maybe RoundPlan
 parseRoundPlan s = case fmap T.unpack (T.splitOn " " s) of
   [[o], [dw]] -> RoundPlan <$> parseOpponentShape o <*> parseDesiredWinner dw
   _ -> Nothing
