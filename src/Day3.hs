@@ -3,7 +3,8 @@
 module Day3 where
 
 import Data.List (intersect)
-import Data.List.NonEmpty (NonEmpty, append, toList)
+import Data.List.NonEmpty (NonEmpty (..))
+import qualified Data.List.NonEmpty as NE
 import Data.Text (Text)
 import qualified Data.Text as T
 
@@ -18,13 +19,13 @@ data Rucksack = Rucksack
   deriving (Eq, Show)
 
 allItems :: Rucksack -> NonEmpty Item
-allItems r = rucksackFirstHalf r `append` rucksackSecondHalf r
+allItems r = rucksackFirstHalf r `NE.append` rucksackSecondHalf r
 
 repeatedItemsBetweenCompartments :: Rucksack -> [Item]
 repeatedItemsBetweenCompartments r = firstHalf `intersect` secondHalf
  where
-  firstHalf = toList $ rucksackFirstHalf r
-  secondHalf = toList $ rucksackSecondHalf r
+  firstHalf = NE.toList $ rucksackFirstHalf r
+  secondHalf = NE.toList $ rucksackSecondHalf r
 
 lowercaseChars :: [Char]
 lowercaseChars = ['a' .. 'z']
@@ -52,3 +53,18 @@ parseItem c =
     then
       Just (Item c)
     else Nothing
+
+parseRucksack :: Text -> Maybe Rucksack
+parseRucksack s =
+  if odd (T.length s)
+    then Nothing
+    else case (ls, rs) of
+      (lh : lt, rh : rt) ->
+        let firstHalf = traverse parseItem (lh :| lt)
+            secondHalf = traverse parseItem (rh :| rt)
+         in Rucksack <$> firstHalf <*> secondHalf
+      _ -> Nothing
+ where
+  (l, r) = T.splitAt (T.length s `div` 2) s
+  ls = T.unpack l
+  rs = T.unpack r
