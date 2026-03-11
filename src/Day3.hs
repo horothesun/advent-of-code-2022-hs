@@ -5,6 +5,7 @@ module Day3 where
 import Data.List (intersect)
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
+import Data.Maybe (listToMaybe, mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
 
@@ -47,6 +48,12 @@ priority (Item c) =
  where
   code = fromEnum c
 
+getRepeatedItemsPrioritiesSum :: [Text] -> Maybe Priority
+getRepeatedItemsPrioritiesSum = fmap repeatedItemsPrioritiesSum . parseRucksacks
+
+repeatedItemsPrioritiesSum :: [Rucksack] -> Priority
+repeatedItemsPrioritiesSum rs = sum (priority <$> mapMaybe (listToMaybe . repeatedItemsBetweenCompartments) rs)
+
 parseItem :: Char -> Maybe Item
 parseItem c =
   if c `elem` (lowercaseChars ++ uppercaseChars)
@@ -68,3 +75,6 @@ parseRucksack s =
   (l, r) = T.splitAt (T.length s `div` 2) s
   ls = T.unpack l
   rs = T.unpack r
+
+parseRucksacks :: [Text] -> Maybe [Rucksack]
+parseRucksacks = traverse parseRucksack

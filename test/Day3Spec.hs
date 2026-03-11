@@ -1,3 +1,5 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module Day3Spec where
 
 import Data.List.NonEmpty (NonEmpty (..))
@@ -5,9 +7,8 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Day3
 import FileLoader
+import NeatInterpolation (trimming)
 import Test.Hspec
-import Test.Hspec.QuickCheck
-import Test.QuickCheck
 
 spec :: Spec
 spec = describe "Day 3" $ do
@@ -61,3 +62,22 @@ spec = describe "Day 3" $ do
           (Item 'c' :| [Item 'C', Item 'a'])
       )
       `shouldBe` [Item 'a', Item 'c']
+
+  it "getRepeatedItemsPrioritiesSum on small input" $
+    getRepeatedItemsPrioritiesSum smallInput `shouldBe` Just 157
+
+  it "getRepeatedItemsPrioritiesSum on BIG input" $
+    getRepeatedItemsPrioritiesSum bigInput `shouldBe` Just 7903
+
+smallInput :: [Text]
+smallInput =
+  T.splitOn
+    "\n"
+    [trimming|
+      vJrwpWtwJgWrhcsFMMfFFhFp
+      jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+      PmmdzqPrVvPwwTWBwg
+      wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+      ttgJtRGJQctTZtZT
+      CrZsJsPPZsGzwwsLwLmpwMDw
+      |]
