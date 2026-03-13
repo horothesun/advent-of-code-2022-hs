@@ -52,7 +52,7 @@ getRepeatedItemsPrioritiesSum :: [Text] -> Maybe Priority
 getRepeatedItemsPrioritiesSum = fmap repeatedItemsPrioritiesSum . parseRucksacks
 
 repeatedItemsPrioritiesSum :: [Rucksack] -> Priority
-repeatedItemsPrioritiesSum rs = sum (priority <$> mapMaybe (listToMaybe . repeatedItemsBetweenCompartments) rs)
+repeatedItemsPrioritiesSum rs = sum $ priority <$> mapMaybe (listToMaybe . repeatedItemsBetweenCompartments) rs
 
 parseItem :: Char -> Maybe Item
 parseItem c =
@@ -65,7 +65,7 @@ parseRucksack :: Text -> Maybe Rucksack
 parseRucksack s =
   if odd (T.length s)
     then Nothing
-    else case (ls, rs) of
+    else case (T.unpack l, T.unpack r) of
       (lh : lt, rh : rt) ->
         let firstHalf = traverse parseItem (lh :| lt)
             secondHalf = traverse parseItem (rh :| rt)
@@ -73,8 +73,6 @@ parseRucksack s =
       _ -> Nothing
  where
   (l, r) = T.splitAt (T.length s `div` 2) s
-  ls = T.unpack l
-  rs = T.unpack r
 
 parseRucksacks :: [Text] -> Maybe [Rucksack]
 parseRucksacks = traverse parseRucksack
