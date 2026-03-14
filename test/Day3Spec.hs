@@ -69,6 +69,12 @@ spec = describe "Day 3" $ do
   it "getRepeatedItemsPrioritiesSum on BIG input" $
     getRepeatedItemsPrioritiesSum bigInput `shouldBe` Just 7903
 
+  it "getGroupedBadgeItemsPrioritiesSum on small input" $
+    getGroupedBadgeItemsPrioritiesSum smallInput `shouldBe` Just 70
+
+  it "getGroupedBadgeItemsPrioritiesSum on BIG input" $
+    getGroupedBadgeItemsPrioritiesSum bigInput `shouldBe` Just 2548
+
 smallInput :: [Text]
 smallInput =
   T.splitOn

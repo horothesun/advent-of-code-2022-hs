@@ -5,6 +5,7 @@ module Day3 where
 import Data.List (intersect)
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
+import Data.List.Split (chunksOf)
 import Data.Maybe (listToMaybe, mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -53,6 +54,16 @@ getRepeatedItemsPrioritiesSum = fmap repeatedItemsPrioritiesSum . parseRucksacks
 
 repeatedItemsPrioritiesSum :: [Rucksack] -> Priority
 repeatedItemsPrioritiesSum rs = sum $ priority <$> mapMaybe (listToMaybe . repeatedItemsBetweenCompartments) rs
+
+getGroupedBadgeItemsPrioritiesSum :: [Text] -> Maybe Priority
+getGroupedBadgeItemsPrioritiesSum input = groupedBadgeItemsPrioritiesSum <$> parseRucksacks input
+
+groupedBadgeItemsPrioritiesSum :: [Rucksack] -> Priority
+groupedBadgeItemsPrioritiesSum rs =
+  sum $ priority <$> mapMaybe (listToMaybe . getItemsPresentInAllRucksacks) (chunksOf 3 rs)
+
+getItemsPresentInAllRucksacks :: [Rucksack] -> [Item]
+getItemsPresentInAllRucksacks = foldr1 intersect . map (NE.toList . allItems)
 
 parseItem :: Char -> Maybe Item
 parseItem c =
