@@ -2,6 +2,7 @@
 
 module Day4Spec where
 
+import Data.List.NonEmpty (NonEmpty (..))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Day4
@@ -16,23 +17,45 @@ spec = describe "Day 4" $ do
   it "load big input from file" $
     length bigInput `shouldBe` 1000
 
+  it "4-5 is fully contained in 4-6" $
+    let l = SectionRange (SectionId 4 :| [SectionId 5])
+        r = SectionRange (SectionId 4 :| [SectionId 5, SectionId 6])
+     in (l `isFullyContainedIn` r) `shouldBe` True
+
+  it "5-5 is fully contained in 4-6" $
+    let l = SectionRange (SectionId 5 :| [])
+        r = SectionRange (SectionId 4 :| [SectionId 5, SectionId 6])
+     in (l `isFullyContainedIn` r) `shouldBe` True
+
+  it "6-6 is fully contained in 4-6" $
+    let l = SectionRange (SectionId 6 :| [])
+        r = SectionRange (SectionId 4 :| [SectionId 5, SectionId 6])
+     in (l `isFullyContainedIn` r) `shouldBe` True
+
+  it "4-6 is NOT fully contained in 6-6" $
+    let l = SectionRange (SectionId 4 :| [SectionId 5, SectionId 6])
+        r = SectionRange (SectionId 6 :| [])
+     in (l `isFullyContainedIn` r) `shouldBe` False
+
+  it "4-6 is NOT fully contained in 8-9" $
+    let l = SectionRange (SectionId 4 :| [SectionId 5, SectionId 6])
+        r = SectionRange (SectionId 8 :| [SectionId 9])
+     in (l `isFullyContainedIn` r) `shouldBe` False
+
+  it "8-9 is NOT fully contained in 4-6" $
+    let l = SectionRange (SectionId 8 :| [SectionId 9])
+        r = SectionRange (SectionId 4 :| [SectionId 5, SectionId 6])
+     in (l `isFullyContainedIn` r) `shouldBe` False
+
 smallInput :: [Text]
 smallInput =
   T.splitOn
     "\n"
     [trimming|
-      1000
-      2000
-      3000
-
-      4000
-
-      5000
-      6000
-
-      7000
-      8000
-      9000
-
-      10000
+      2-4,6-8
+      2-3,4-5
+      5-7,7-9
+      2-8,3-7
+      6-6,4-6
+      2-6,4-8
       |]
