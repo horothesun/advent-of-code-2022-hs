@@ -58,16 +58,16 @@ spec = describe "Day 4" $ do
             (SectionRange $ SectionId 5 :| [SectionId 6])
         )
 
-  it "getAssignmentPairsWithFullyContainedRangeCount smallInput" $
+  it "getAssignmentPairsWithFullyContainedRangeCount on small input" $
     getAssignmentPairsWithFullyContainedRangeCount smallInput `shouldBe` Just 2
 
-  it "getAssignmentPairsWithFullyContainedRangeCount bigInput" $
+  it "getAssignmentPairsWithFullyContainedRangeCount on BIG input" $
     getAssignmentPairsWithFullyContainedRangeCount bigInput `shouldBe` Just 532
 
-  it "getAssignmentPairsWithOverlappingRangesCount smallInput" $
+  it "getAssignmentPairsWithOverlappingRangesCount on small input" $
     getAssignmentPairsWithOverlappingRangesCount smallInput `shouldBe` Just 4
 
-  it "getAssignmentPairsWithOverlappingRangesCount bigInput" $
+  it "getAssignmentPairsWithOverlappingRangesCount on BIG input" $
     getAssignmentPairsWithOverlappingRangesCount bigInput `shouldBe` Just 854
 
 smallInput :: [Text]
