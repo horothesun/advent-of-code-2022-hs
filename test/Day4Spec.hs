@@ -47,6 +47,29 @@ spec = describe "Day 4" $ do
         r = SectionRange (SectionId 4 :| [SectionId 5, SectionId 6])
      in (l `isFullyContainedIn` r) `shouldBe` False
 
+  it "parseSectionRange \"3-5\" returns the correct SectionId NEL" $
+    parseSectionRange "3-5" `shouldBe` Just (SectionRange $ SectionId 3 :| [SectionId 4, SectionId 5])
+
+  it "parseAssignmentPair \"2-3,5-6\" returns the correct SectionId NEL pair" $
+    parseAssignmentPair "2-3,5-6"
+      `shouldBe` Just
+        ( AssignmentPair
+            (SectionRange $ SectionId 2 :| [SectionId 3])
+            (SectionRange $ SectionId 5 :| [SectionId 6])
+        )
+
+  it "getAssignmentPairsWithFullyContainedRangeCount smallInput" $
+    getAssignmentPairsWithFullyContainedRangeCount smallInput `shouldBe` Just 2
+
+  it "getAssignmentPairsWithFullyContainedRangeCount bigInput" $
+    getAssignmentPairsWithFullyContainedRangeCount bigInput `shouldBe` Just 532
+
+  it "getAssignmentPairsWithOverlappingRangesCount smallInput" $
+    getAssignmentPairsWithOverlappingRangesCount smallInput `shouldBe` Just 4
+
+  it "getAssignmentPairsWithOverlappingRangesCount bigInput" $
+    getAssignmentPairsWithOverlappingRangesCount bigInput `shouldBe` Just 854
+
 smallInput :: [Text]
 smallInput =
   T.splitOn
