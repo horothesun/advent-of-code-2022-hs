@@ -3,17 +3,15 @@
 module Day5 where
 
 import Control.Applicative (many, (<|>))
-import Control.Monad.Combinators.NonEmpty (some)
+import qualified Control.Monad as Parser
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
 import Data.Stack
 import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.Read as TR
 import Data.Void (Void)
 import Numeric.Natural (Natural)
-import Text.Megaparsec (MonadParsec (try), Parsec, anySingle, between, runParser, skipManyTill)
-import Text.Megaparsec.Char (char, letterChar, string)
+import Text.Megaparsec (Parsec, between, eof, runParser, sepBy, sepBy1)
+import Text.Megaparsec.Char (char, digitChar, letterChar, newline, string)
 import Text.Megaparsec.Char.Lexer (decimal)
 import Text.Megaparsec.Error (ParseErrorBundle)
 import Witherable (Filterable (mapMaybe))
@@ -22,20 +20,21 @@ newtype Crate = Crate Char deriving (Eq, Show)
 
 newtype Stacks = Stacks (NonEmpty (Stack Crate)) deriving (Eq, Show)
 
+newtype Count = Count Natural deriving (Eq, Show, Num) via Natural
 newtype From = From Natural deriving (Eq, Show, Num) via Natural
 newtype To = To Natural deriving (Eq, Show, Num) via Natural
 
-data Move = Move Natural From To deriving (Eq, Show)
+data Move = Move !Count !From !To deriving (Eq, Show)
 
-data BaseMove = BaseMove From To deriving (Eq, Show)
-
-newtype BaseMovePlan = BaseMovePlan [BaseMove] deriving (Eq, Show)
+data BaseMove = BaseMove !From !To deriving (Eq, Show)
 
 newtype MovePlan = MovePlan [Move] deriving (Eq, Show)
 
+newtype BaseMovePlan = BaseMovePlan [BaseMove] deriving (Eq, Show)
+
 data CrateItem
   = NoCrate
-  | CrateItem Crate
+  | CrateItem !Crate
   deriving (Eq, Show)
 
 peekAll :: Stacks -> NonEmpty (Maybe Crate)
@@ -44,15 +43,6 @@ peekAll (Stacks ss) = stackPeek <$> ss
 emptyStacks :: Natural -> Maybe Stacks
 emptyStacks 0 = Nothing
 emptyStacks n = Just $ Stacks $ stackNew :| (stackNew <$ [2 .. n])
-
-noCrateShow :: Text
-noCrateShow = "[~]"
-
-preProcessInput :: [Text] -> [Text]
-preProcessInput = fmap preProcessInputRow
-
-preProcessInputRow :: Text -> Text
-preProcessInputRow = T.drop 1 . T.replace "    " (" " `T.append` noCrateShow) . T.append " "
 
 stacksFromCrateItemGrid :: NonEmpty (NonEmpty CrateItem) -> Stacks
 stacksFromCrateItemGrid rows = Stacks $ stackFromList . mapMaybe maybeCrate . NE.toList <$> NE.transpose rows
@@ -64,22 +54,57 @@ maybeCrate (CrateItem c) = Just c
 -- parsers
 
 type Parser = Parsec Void Text
-type Parsingrror = ParseErrorBundle Text Void
+type ParsingError = ParseErrorBundle Text Void
 
-crateP :: Parser Crate
-crateP = Crate <$> between (char '[') (char ']') letterChar
+sepBy1NE :: Parser a -> Parser b -> Parser (NonEmpty a)
+sepBy1NE p sep = do
+  as <- p `sepBy1` sep
+  case NE.nonEmpty as of
+    Nothing -> Parser.fail "Expected non-empty list"
+    Just ne -> pure ne
 
-crateItemP :: Parser CrateItem
-crateItemP = (NoCrate <$ string noCrateShow) <|> (CrateItem <$> crateP)
+someNE :: Parser a -> Parser (NonEmpty a)
+someNE p = (:|) <$> p <*> many p
 
-crateItemGridP :: Parser (NonEmpty (NonEmpty CrateItem))
-crateItemGridP = some $ some crateItemP
+parseAll :: Text -> Either ParsingError (Stacks, MovePlan)
+parseAll = runParser allP ""
+
+allP :: Parser (Stacks, MovePlan)
+allP = do
+  stacks <- stacksP
+  _ <- newline
+  movePlan <- movePlanP
+  _ <- eof
+  return (stacks, movePlan)
 
 stacksP :: Parser Stacks
 stacksP = stacksFromCrateItemGrid <$> crateItemGridP
 
--- parser :: Parser [Instruction]
--- parser = many (try (skipManyTill anySingle (try operationParser)))
+crateItemGridP :: Parser (NonEmpty (NonEmpty CrateItem))
+crateItemGridP = someNE ((crateItemP `sepBy1NE` char ' ') <* newline) <* indexesP
 
--- parseAll :: T.Text -> Either ParsingError [Instruction]
--- parseAll = runParser parser "input file"
+crateItemP :: Parser CrateItem
+crateItemP = (NoCrate <$ string "   ") <|> (CrateItem <$> crateP)
+
+crateP :: Parser Crate
+crateP = Crate <$> between (char '[') (char ']') letterChar
+
+indexesP :: Parser ()
+indexesP = do
+  _ <- char ' ' *> digitChar `sepBy1` string "   " *> char ' ' *> newline
+  return ()
+
+movePlanP :: Parser MovePlan
+movePlanP = MovePlan <$> (moveP `sepBy` newline)
+
+moveP :: Parser Move
+moveP = Move <$> (string "move " *> countP) <*> (string " from " *> fromP) <*> (string " to " *> toP)
+
+countP :: Parser Count
+countP = Count <$> decimal
+
+fromP :: Parser From
+fromP = From <$> decimal
+
+toP :: Parser To
+toP = To <$> decimal
