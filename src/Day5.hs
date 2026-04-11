@@ -6,7 +6,8 @@ import Control.Applicative (many, (<|>))
 import qualified Control.Monad as Parser
 import Data.List.NonEmpty (NonEmpty (..))
 import qualified Data.List.NonEmpty as NE
-import Data.Stack
+import Data.Stack (Stack)
+import qualified Data.Stack as Stack
 import Data.Text (Text)
 import Data.Void (Void)
 import Numeric.Natural (Natural)
@@ -38,14 +39,14 @@ data CrateItem
   deriving (Eq, Show)
 
 peekAll :: Stacks -> NonEmpty (Maybe Crate)
-peekAll (Stacks ss) = stackPeek <$> ss
+peekAll (Stacks ss) = Stack.peek <$> ss
 
 emptyStacks :: Natural -> Maybe Stacks
 emptyStacks 0 = Nothing
-emptyStacks n = Just $ Stacks $ stackNew :| (stackNew <$ [2 .. n])
+emptyStacks n = Just $ Stacks $ Stack.new :| (Stack.new <$ [2 .. n])
 
 stacksFromCrateItemGrid :: NonEmpty (NonEmpty CrateItem) -> Stacks
-stacksFromCrateItemGrid rows = Stacks $ stackFromList . mapMaybe maybeCrate . NE.toList <$> NE.transpose rows
+stacksFromCrateItemGrid rows = Stacks $ Stack.fromList . mapMaybe maybeCrate . NE.toList <$> NE.transpose rows
 
 maybeCrate :: CrateItem -> Maybe Crate
 maybeCrate NoCrate = Nothing
