@@ -1,0 +1,14 @@
+cradle:
+  stack:
+    componentsToLoad:
+      - "aoc22:lib"
+      - "aoc22:test:aoc22-test"
+    components:
+      - path: "./src"
+        component: "aoc22:lib"
+
+      - path: "./app/Main.hs"
+        component: "aoc22:exe:aoc2022"
+
+      - path: "./test"
+        component: "aoc22:test:aoc22-test"
