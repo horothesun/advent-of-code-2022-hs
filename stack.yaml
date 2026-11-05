@@ -18,7 +18,11 @@
 # snapshot: ./custom-snapshot.yaml
 # snapshot: https://example.com/snapshots/2024-01-01.yaml
 snapshot:
-  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/23/28.yaml
+  # url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/24/61.yaml
+  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/refs/heads/master/nightly/2026/11/3.yaml
+
+compiler: ghc-9.14.1
+compiler-check: match-exact
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
